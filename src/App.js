@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import logo from './assets/logo.jpg';
 import MyButton from './components/MyButton';
+import api from './services/api';
 
 function App () {
-    const [projects, setProjects] = useState(['projeto1', 'projeto2']);
+    const [projects, setProjects] = useState([]);
 
-    const handleAddProject = () => {
-        // o que não fazer: projects.push(`Novo projeto ${Date.now()}`);
-        setProjects([...projects, `Novo projeto ${Date.now()}`]);
+    useEffect(async () => {
+        const response = await api.get('projects');
+        setProjects(response.data);
+        console.log("response: ", response);
+    }, []);
+
+    const handleAddProject = async () => {
+        
+        const result = await api.post('projects', { id: Date.now(), name: `Novo projeto ${Date.now()}` });
+        // setProjects([...projects, result.data]);
+        setProjects(result.data);
     };
 
     return (
@@ -21,7 +30,7 @@ function App () {
             <h2>Meus projetos:</h2>
             <button onClick={handleAddProject}>Adicionar novo projeto</button>
             <ul>
-                {projects.map(project => <li key={project}>{project}</li>)}
+                {projects.map(project => <li key={project.id}>{project.name}</li>)}
             </ul>
         </>
     )
